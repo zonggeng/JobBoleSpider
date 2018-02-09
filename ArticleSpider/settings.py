@@ -68,7 +68,8 @@ ITEM_PIPELINES = {
     # 'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
     'ArticleSpider.pipelines.ArticleImagePipelin': 1,
     # 'ArticleSpider.pipelines.JsonExporterPipleline': 2,
-    'ArticleSpider.pipelines.MysqlPipeline': 2,
+    # 'ArticleSpider.pipelines.MysqlPipeline': 2,
+    'ArticleSpider.pipelines.MysqlTwistedPipeline': 2,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
 }
 IMAGES_URLS_FIELD = "fron_image_url"  # 告诉scrapy下载图片是item的那个字段
@@ -100,3 +101,8 @@ IMAGES_STORE = os.path.join(project_dir, 'images')
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+MYSQL_HOST = '127.0.0.1'
+MYSQL_DBNAME = 'article_spider'
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = '123123'
