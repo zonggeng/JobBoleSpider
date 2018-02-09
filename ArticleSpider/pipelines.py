@@ -11,6 +11,8 @@ from scrapy.pipelines.images import ImagesPipeline
 import codecs
 from scrapy.exporters import JsonItemExporter  # scrapy 自带的输出json
 
+import MySQLdb
+
 
 class ArticlespiderPipeline(object):
     def process_item(self, item, spider):
@@ -22,6 +24,7 @@ class JsonWithEncodingPipeline(object):
     自定义json文件导出
 
     """
+
     def __init__(self):
         self.file = codecs.open('article.json', 'w', encoding='utf-8')
 
@@ -32,6 +35,29 @@ class JsonWithEncodingPipeline(object):
 
     def spider_closed(self, spider):
         self.file.close()
+
+
+class MysqlPipeline(object):
+    """
+    导数据进mysql
+    """
+
+    def __init__(self):
+        # self.conn = MySQLdb.connect('host', 'user', 'password', 'dbname', charset='utf8', use_unicode=True)
+        self.conn = MySQLdb.connect('127.0.0.1', 'root', '123123', 'article_spider', charset='utf8',
+                                    use_unicode=True)  # 创建链接
+        self.cursor = self.conn.cursor()  # 操作mysql
+
+    def process_item(self, item, spider):
+        insert_sql = """
+            insert into jobbole_article(title,create_date,url,url_object_id,fron_image_url,front_image_path,comment_nums,praise_nums,fav_nums,tags,content)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        """
+        self.cursor.execute(insert_sql, (
+            item['title'], item['create_date'], item['url'], item['url_object_id'], item['fron_image_url'],
+            item['front_image_path'], item['comment_nums'], item['praise_nums'], item['fav_nums'], item['tags'],
+            item['content']))
+        self.conn.commit()
 
 
 class JsonExporterPipleline(object):

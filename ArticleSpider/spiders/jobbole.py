@@ -4,6 +4,7 @@ from scrapy.http import Request
 from urllib import parse
 from ArticleSpider.items import JobBoleArticleItem
 from ArticleSpider.utils.common import get_md5
+import datetime
 
 
 class JobboleSpider(scrapy.Spider):
@@ -61,6 +62,11 @@ class JobboleSpider(scrapy.Spider):
         article_item = JobBoleArticleItem()
         article_item['title'] = title
         article_item['url'] = response.url
+        try:
+            create_date = datetime.datetime.strptime(create_date, '%Y/%m/%d').date() # 格式化格式
+        except Exception as e:
+            create_date = datetime.datetime.now() # 当前时间
+        article_item['create_date'] = create_date
         article_item['fron_image_url'] = [front_image]  # 如果用scrapy 的imagepipeline下载图片要给她传进list 不然会报错
         article_item['praise_nums'] = praise_nums
         article_item['comment_nums'] = comment_nums
