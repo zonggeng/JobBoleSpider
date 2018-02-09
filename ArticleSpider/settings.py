@@ -67,6 +67,7 @@ DOWNLOAD_DELAY = 3
 ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
     'ArticleSpider.pipelines.ArticleImagePipelin': 1,
+    'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
 }
 IMAGES_URLS_FIELD = "fron_image_url"  # 告诉scrapy下载图片是item的那个字段
