@@ -2,8 +2,9 @@
 import scrapy
 from scrapy.http import Request
 from urllib import parse
-from ArticleSpider.items import JobBoleArticleItem
+from ArticleSpider.items import JobBoleArticleItem, ArticleItemloader
 from ArticleSpider.utils.common import get_md5
+from scrapy.loader import ItemLoader
 import datetime
 
 
@@ -40,6 +41,7 @@ class JobboleSpider(scrapy.Spider):
         :param response:
         :return:
         """
+        """
         front_image = response.meta.get('front_image_url', '')  # 获取上面传过来的封面
         title = response.xpath('//div[@class="entry-header"]/h1/text()').extract()[0]
         create_date = response.xpath('//p[@class="entry-meta-hide-on-mobile"]/text()').extract()[0].strip().replace(
@@ -63,9 +65,9 @@ class JobboleSpider(scrapy.Spider):
         article_item['title'] = title
         article_item['url'] = response.url
         try:
-            create_date = datetime.datetime.strptime(create_date, '%Y/%m/%d').date() # 格式化格式
+            create_date = datetime.datetime.strptime(create_date, '%Y/%m/%d').date()  # 格式化格式
         except Exception as e:
-            create_date = datetime.datetime.now() # 当前时间
+            create_date = datetime.datetime.now()  # 当前时间
         article_item['create_date'] = create_date
         article_item['fron_image_url'] = [front_image]  # 如果用scrapy 的imagepipeline下载图片要给她传进list 不然会报错
         article_item['praise_nums'] = praise_nums
@@ -74,5 +76,22 @@ class JobboleSpider(scrapy.Spider):
         article_item['tags'] = tags
         article_item['content'] = content
         article_item['url_object_id'] = get_md5(response.url)
+        """
+
+        # 通过item loader加载item 后期更好维护!直观! 规则还可以写在配置文件或者数据库! 但是都是列表格式  要对数据处理的话要去item里面自定义函数
+        item_loader = ArticleItemloader(item=JobBoleArticleItem(), response=response)
+        front_image_url = response.meta.get("front_image_url", "")  # 封面图
+        item_loader.add_xpath('title', '//div[@class="entry-header"]/h1/text()')
+        item_loader.add_value('url', response.url)
+        item_loader.add_value('url_object_id', get_md5(response.url))
+        item_loader.add_xpath('create_date', '//p[@class="entry-meta-hide-on-mobile"]/text()')
+        item_loader.add_value('fron_image_url', [front_image_url])
+        item_loader.add_xpath('praise_nums', '//span[contains(@class,"vote-post-up")]/h10/text()')
+        item_loader.add_xpath('comment_nums', '//a[@href="#article-comment"]/span/text()')
+        item_loader.add_xpath('fav_nums', '//span[contains(@class,"bookmark-btn")]/text()')
+        item_loader.add_xpath('content', '//div[@class="entry"]')
+        item_loader.add_xpath('tags', '//p[@class="entry-meta-hide-on-mobile"]/a/text()')
+
+        article_item = item_loader.load_item()
 
         yield article_item
