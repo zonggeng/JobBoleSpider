@@ -33,7 +33,7 @@ DOWNLOAD_DELAY = 3
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = True  # 设为True之后 其他页面也不需要手动传cookies了
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -76,6 +76,11 @@ IMAGES_URLS_FIELD = "fron_image_url"  # 告诉scrapy下载图片是item的那个
 # 获取当前路径
 project_dir = os.path.abspath(os.path.dirname(__file__))
 IMAGES_STORE = os.path.join(project_dir, 'images')
+
+# chromedriver路径
+chromedriver_path = os.path.join(project_dir, 'tools/chromedriver.exe')
+
+
 
 # 过滤图片
 # IMAGES_MIN_HEIGHT = 100  # 最小的高度
