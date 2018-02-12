@@ -4,7 +4,8 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/items.html
-
+from ArticleSpider.utils.common import extract_num, Remove_the_comma
+from ArticleSpider.settings import SQL_DATE_FORMAT, SQL_DATETIME_FORMAT
 import scrapy
 import datetime
 # TakeFirst 只要第一个值
@@ -96,3 +97,91 @@ class JobBoleArticleItem(scrapy.Item):
         input_processor=MapCompose(handle_tags)
     )
     content = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                           insert into jobbole_article(title,create_date,url,url_object_id,fron_image_url,front_image_path,comment_nums,praise_nums,fav_nums,tags,content)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                       """
+
+        params = (
+            self.item['title'], self.item['create_date'], self.item['url'], self.item['url_object_id'],
+            self.item['fron_image_url'],
+            self.item['front_image_path'], self.item['comment_nums'], self.item['praise_nums'], self.item['fav_nums'],
+            self.item['tags'],
+            self.item['content'])
+
+        return insert_sql, params
+
+
+class ZhihuQuestionItem(scrapy.Item):
+    # 知乎的问题
+    zhihu_id = scrapy.Field()
+    topics = scrapy.Field()
+    url = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    answer_num = scrapy.Field()
+    comments_num = scrapy.Field()
+    watch_user_num = scrapy.Field()
+    click_num = scrapy.Field()
+    crawl_time = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                           insert into zhihu_question(zhihu_id,topics,url,title,content,answer_num,comments_num,watch_user_num,click_num,crawl_time)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                           ON DUPLICATE KEY UPDATE content=VALUES(content), answer_num=VALUES(answer_num), comments_num=VALUES(comments_num),watch_user_num=VALUES(watch_user_num), click_num=VALUES(click_num)
+                       """
+        zhihu_id = int(self['zhihu_id'][0])
+        topics = ','.join(self['topics'])
+        url = self['url'][0]
+        title = ''.join(self['title']).encode('utf-8')
+        content = ''.join(self['content'])
+        answer_num = Remove_the_comma(self['answer_num'][0]) if self['answer_num'][0] else 0
+        comments_num = extract_num(''.join(self['comments_num']))
+        watch_user_num = Remove_the_comma(self['watch_user_num'][0]) if self['watch_user_num'][0] else 0
+        click_num = Remove_the_comma(self['watch_user_num'][1]) if self['watch_user_num'][1] else 0
+        crawl_time = datetime.datetime.now().strftime(SQL_DATETIME_FORMAT)
+
+        params = (
+            zhihu_id, topics, url, title, content, answer_num, comments_num, watch_user_num, click_num, crawl_time)
+
+        return insert_sql, params
+
+
+class ZhihuAnswerItem(scrapy.Item):
+    # 知乎的问题回答item
+    zhihu_id = scrapy.Field()
+    url = scrapy.Field()
+    question_id = scrapy.Field()
+    author_id = scrapy.Field()
+    content = scrapy.Field()
+    praise_num = scrapy.Field()
+    comments_num = scrapy.Field()
+    create_time = scrapy.Field()
+    update_time = scrapy.Field()
+    crawl_time = scrapy.Field()
+
+    def get_insert_sql(self):
+        insert_sql = """
+                           insert into zhihu_answer(zhihu_id,url,question_id,author_id,content,praise_num,comments_num,create_time,update_time,crawl_time)
+                           VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                           ON DUPLICATE KEY UPDATE content=VALUES (content),comments_num =VALUES (comments_num),praise_num=VALUES (praise_num),update_time=VALUES (update_time)
+                       """
+        zhihu_id = self['zhihu_id']
+        url = self['url']
+        question_id = self['question_id']
+        author_id = self['author_id']
+        content = self['content']
+        praise_num = self['praise_num']
+        comments_num = self['comments_num']
+        create_time = datetime.datetime.fromtimestamp(self["create_time"]).strftime(SQL_DATETIME_FORMAT)
+        update_time = datetime.datetime.fromtimestamp(self["update_time"]).strftime(SQL_DATETIME_FORMAT)
+        crawl_time = datetime.datetime.now().strftime(SQL_DATETIME_FORMAT)
+
+        params = (
+            zhihu_id, url, question_id, author_id, content, praise_num, comments_num, create_time, update_time,
+            crawl_time)
+
+        return insert_sql, params

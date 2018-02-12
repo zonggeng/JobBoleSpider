@@ -66,7 +66,7 @@ COOKIES_ENABLED = True  # 设为True之后 其他页面也不需要手动传cook
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-    'ArticleSpider.pipelines.ArticleImagePipelin': 1,
+    # 'ArticleSpider.pipelines.ArticleImagePipelin': 1,
     # 'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'ArticleSpider.pipelines.MysqlPipeline': 2,
     'ArticleSpider.pipelines.MysqlTwistedPipeline': 2,
@@ -79,8 +79,6 @@ IMAGES_STORE = os.path.join(project_dir, 'images')
 
 # chromedriver路径
 chromedriver_path = os.path.join(project_dir, 'tools/chromedriver.exe')
-
-
 
 # 过滤图片
 # IMAGES_MIN_HEIGHT = 100  # 最小的高度
@@ -111,3 +109,6 @@ MYSQL_HOST = '127.0.0.1'
 MYSQL_DBNAME = 'article_spider'
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = '123123'
+
+SQL_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+SQL_DATE_FORMAT = "%Y-%m-%d"
