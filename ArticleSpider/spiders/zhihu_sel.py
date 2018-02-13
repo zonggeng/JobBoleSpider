@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import time
 import json
 import re
 
@@ -95,7 +96,7 @@ class ZhihuSpider(scrapy.Spider):
             yield answer_item
 
         if not is_end:
-            datetime.time.sleep(1.5)
+            time.sleep(1.5)
             print('休眠1.5秒,防止301')
             yield scrapy.Request(next_url, callback=self.parse_answer, headers=self.headers)
 

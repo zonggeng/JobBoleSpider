@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 
 # Scrapy settings for ArticleSpider project
 #
@@ -83,6 +84,8 @@ chromedriver_path = os.path.join(project_dir, 'tools/chromedriver.exe')
 # 过滤图片
 # IMAGES_MIN_HEIGHT = 100  # 最小的高度
 # IMAGES_MIN_WIDTH = 100  # 最小的宽度
+BASE_DIR = os.path.dirname(project_dir)
+sys.path.insert(0, os.path.join(BASE_DIR, 'ArticleSpider'))
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

@@ -1,15 +1,20 @@
-def longestIncreaseSubarray(inputList):
-    temp = inputList[0]
-    temp_list = []
-    temp_list.append(temp)
-    for x in inputList[1:]:
-        if x > temp:
-            temp_list.append(x)
-            temp = x
+# 二分查找 递归每次找到中间值然后左大小区分
+
+def binary_search(alist, item):
+    if len(alist) == 0:
+        return False
+    else:
+        mid = len(alist) // 2
+        if alist[mid] == item:
+            return True
+        if alist[mid] > item:
+            return binary_search(alist[:mid], item)
         else:
-            break
-    print(temp_list)
+            return binary_search(alist[mid + 1:], item)
 
 
-l =  [1, 5, 4, 7, 9]
-longestIncreaseSubarray(l)
+a = [2, 51, 23, 5, 546, 24, 345, 32]
+
+print(binary_search(a, 546))
+
+# 选择排序
