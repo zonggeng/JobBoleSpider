@@ -28,13 +28,14 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://doc.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
+# 下载网页的延迟 秒 可以小数
 DOWNLOAD_DELAY = 3
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = True  # 设为True之后 其他页面也不需要手动传cookies了
+COOKIES_ENABLED = False  # 禁用cookies False 就是禁用 scrapy就不会带cookies True 就是会带cookies
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -53,9 +54,10 @@ COOKIES_ENABLED = True  # 设为True之后 其他页面也不需要手动传cook
 
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'ArticleSpider.middlewares.ArticlespiderDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    'ArticleSpider.middlewares.RandomUserAgentMiddlware': 543,
+    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+}
 
 # Enable or disable extensions
 # See https://doc.scrapy.org/en/latest/topics/extensions.html
@@ -70,7 +72,7 @@ ITEM_PIPELINES = {
     # 'ArticleSpider.pipelines.ArticleImagePipelin': 1,
     # 'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'ArticleSpider.pipelines.MysqlPipeline': 2,
-    'ArticleSpider.pipelines.MysqlTwistedPipeline': 2,
+    # 'ArticleSpider.pipelines.MysqlTwistedPipeline': 2,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
 }
 IMAGES_URLS_FIELD = "fron_image_url"  # 告诉scrapy下载图片是item的那个字段
@@ -81,11 +83,18 @@ IMAGES_STORE = os.path.join(project_dir, 'images')
 # chromedriver路径
 chromedriver_path = os.path.join(project_dir, 'tools/chromedriver.exe')
 
+# phantomjs 路径
+phantomjs_path = os.path.join(project_dir, 'tools/phantomjs.exe')
+
+
 # 过滤图片
 # IMAGES_MIN_HEIGHT = 100  # 最小的高度
 # IMAGES_MIN_WIDTH = 100  # 最小的宽度
 BASE_DIR = os.path.dirname(project_dir)
 sys.path.insert(0, os.path.join(BASE_DIR, 'ArticleSpider'))
+
+# 获取useranget 的方式 ie msie opera google chrome firefox safari ff 具体可以去github查看 fake-useragent
+RANDOM_UA_TYPE = 'random'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html
