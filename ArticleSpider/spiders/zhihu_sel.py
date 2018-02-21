@@ -29,6 +29,7 @@ class ZhihuSpider(scrapy.Spider):
         'User-Agent': "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0"
     }
 
+    # 自定义settin该文件
     custom_settings = {
         "COOKIES_ENABLED": True
     }

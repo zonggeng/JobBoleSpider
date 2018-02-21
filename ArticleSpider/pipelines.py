@@ -11,6 +11,8 @@ from scrapy.pipelines.images import ImagesPipeline
 import codecs
 from scrapy.exporters import JsonItemExporter  # scrapy 自带的输出json
 from twisted.enterprise import adbapi
+from models.es_types import ArticleType
+from w3lib.html import remove_tags  # 去掉content里面的html标签
 
 import MySQLdb
 import MySQLdb.cursors
@@ -91,10 +93,10 @@ class MysqlTwistedPipeline(object):
         使用twisted将mysql插入变成异步执行
         """
         query = self.dbpool.runInteraction(self.do_insert, item)
-        query.addErrback(self.handle_error,item,spider)  # 异步执行的时候出现错误的要处理的函数
+        query.addErrback(self.handle_error, item, spider)  # 异步执行的时候出现错误的要处理的函数
         return item
 
-    def handle_error(self, failure,item,spider):
+    def handle_error(self, failure, item, spider):
         """
         处理异步插入的异常
         :param failure:
@@ -137,4 +139,31 @@ class ArticleImagePipelin(ImagesPipeline):
             for ok, value in results:
                 image_file_path = value['path']
             item['front_image_path'] = image_file_path
+        return item
+
+
+class ElasticsearchPipeline(object):
+    # 将数据写入到es中
+
+    def process_item(self, item, spider):
+        """
+        # 因为多个爬虫所以把这个逻辑放到对应的item里面去
+        # 将item转换为es的数据
+        article = ArticleType()
+        article.title = item['title']
+        article.create_date = item['create_date']
+        article.content = remove_tags(item['content'])
+        article.fron_image_url = item['fron_image_url']
+        if 'front_image_path' in item:
+            article.front_image_path = item['front_image_path']
+        article.praise_nums = item['praise_nums']
+        article.fav_nums = item['fav_nums']
+        article.comment_nums = item['comment_nums']
+        article.url = item['url']
+        article.tags = item['tags']
+        article.meta.id = item['url_object_id']
+
+        article.save()
+        """
+        item.save_to_es()
         return item

@@ -4,10 +4,13 @@
 #
 # See documentation in:
 # https://doc.scrapy.org/en/latest/topics/spider-middleware.html
-
+import time
 from scrapy import signals
 from fake_useragent import UserAgent
 from tools.crawl_xici_ip import GetIP
+from ArticleSpider.settings import chromedriver_path, phantomjs_path
+from selenium import webdriver
+from scrapy.http import HtmlResponse
 
 
 class ArticlespiderSpiderMiddleware(object):
@@ -134,3 +137,32 @@ class RandomProxyMiddleware(object):
     def process_request(self, request, spider):
         get_ip = GetIP()
         request.meta['proxy'] = get_ip.get_random_ip()
+
+
+# 集成selenium
+class JSPageMiddleware(object):
+    """
+    def __init__(self):
+        # 设置Chrome无界面运行  chrome_opt.add_argument('--headless')  或者 options.add_argument("headless")
+        # 在初始化函数上定义好browser 这样就不会每个请求都创建一个实例!很慢
+        self.chrome_opt = webdriver.ChromeOptions()
+        self.chrome_opt.add_argument('--headless')
+        self.chrome_opt.add_argument('--disable-gpu')
+        self.browser = webdriver.Chrome(executable_path=chromedriver_path, chrome_options=self.chrome_opt)
+        # super(JSPageMiddleware,self).__init__()
+        # 优化:
+        # 把selenium放在spider里面会更好,因为可以异步启动chrome !爬虫关闭的时候也可以调用关闭方法
+    """
+
+    # 通过chrome 请求动态网页
+    def process_request(self, request, spider):
+        # 通过spider判断那个爬虫需要用selenium!
+        # 也可以通过request判断需不需要用selenium
+        if spider.name == "jobbole":
+            spider.browser.get(request.url)
+            # time.sleep(3)
+            print('访问:{}'.format(request.url))
+            # 因为已经获取到源代码了!所以要跳过下载器 直接把源代码发送回给spider
+            # 一旦遇到HtmlResponse 就不会再发送数据给下载器 而是直接返回给spider
+            return HtmlResponse(url=spider.browser.current_url, body=spider.browser.page_source, encoding='utf-8',
+                                request=request)

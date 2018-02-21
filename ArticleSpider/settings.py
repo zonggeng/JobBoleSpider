@@ -55,8 +55,9 @@ COOKIES_ENABLED = False  # 禁用cookies False 就是禁用 scrapy就不会带co
 # Enable or disable downloader middlewares
 # See https://doc.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    'ArticleSpider.middlewares.RandomUserAgentMiddlware': 543,
-    'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    # 'ArticleSpider.middlewares.RandomUserAgentMiddlware': 543,
+    # 'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
+    # 'ArticleSpider.middlewares.JSPageMiddleware': 543,
 }
 
 # Enable or disable extensions
@@ -69,10 +70,11 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-    # 'ArticleSpider.pipelines.ArticleImagePipelin': 1,
+    'ArticleSpider.pipelines.ArticleImagePipelin': 1,
     # 'ArticleSpider.pipelines.JsonExporterPipleline': 2,
     # 'ArticleSpider.pipelines.MysqlPipeline': 2,
     # 'ArticleSpider.pipelines.MysqlTwistedPipeline': 2,
+    'ArticleSpider.pipelines.ElasticsearchPipeline': 3,
     # 'scrapy.pipelines.images.ImagesPipeline': 1,
 }
 IMAGES_URLS_FIELD = "fron_image_url"  # 告诉scrapy下载图片是item的那个字段

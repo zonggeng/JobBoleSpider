@@ -13,7 +13,8 @@ import datetime
 # TakeFirst 只要第一个值
 from scrapy.loader.processors import MapCompose, TakeFirst, Join
 from scrapy.loader import ItemLoader
-from w3lib.html import remove_tags
+from w3lib.html import remove_tags  # 去掉content里面的html标签
+from models.es_types import ArticleType
 
 
 class ArticlespiderItem(scrapy.Item):
@@ -116,6 +117,25 @@ class JobBoleArticleItem(scrapy.Item):
             self.item['content'])
 
         return insert_sql, params
+
+    def save_to_es(self):
+        article = ArticleType()
+        article.title = self['title']
+        article.create_date = self['create_date']
+        article.content = remove_tags(self['content'])
+        article.fron_image_url = self['fron_image_url']
+        if 'front_image_path' in self:
+            article.front_image_path = self['front_image_path']
+        article.praise_nums = self['praise_nums']
+        article.fav_nums = self['fav_nums']
+        article.comment_nums = self['comment_nums']
+        article.url = self['url']
+        article.tags = self['tags']
+        article.meta.id = self['url_object_id']
+
+        article.save()
+
+        return
 
 
 class ZhihuQuestionItem(scrapy.Item):

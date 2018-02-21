@@ -6,12 +6,48 @@ from ArticleSpider.items import JobBoleArticleItem, ArticleItemloader
 from ArticleSpider.utils.common import get_md5
 from scrapy.loader import ItemLoader
 import datetime
+from ArticleSpider.settings import chromedriver_path
+from selenium import webdriver
+from scrapy.xlib.pydispatch import dispatcher
+from scrapy import signals
 
 
 class JobboleSpider(scrapy.Spider):
     name = 'jobbole'
     allowed_domains = ['blog.jobbole.com']
     start_urls = ['http://blog.jobbole.com/all-posts/']
+
+    """
+    def __init__(self):  # 相当于爬虫的信号器
+        # 设置Chrome无界面运行  chrome_opt.add_argument('--headless')  或者 options.add_argument("headless")
+        # 在初始化函数上定义好browser 这样就不会每个请求都创建一个实例!很慢
+        self.chrome_opt = webdriver.ChromeOptions()
+        self.chrome_opt.add_argument('--headless')
+        self.chrome_opt.add_argument('--disable-gpu')
+        self.browser = webdriver.Chrome(executable_path=chromedriver_path, chrome_options=self.chrome_opt)
+        super(JobboleSpider, self).__init__()
+        # 信号映射 第一个参数是处理函数 ,第二个参数是信号链 就是说爬虫发生什么信号用什么函数处理
+        dispatcher.connect(self.spider_closed, signals.spider_closed)
+
+    def spider_closed(self, spider):
+        # 当爬虫退出的时候关闭Chrome
+        print('spider closed')
+        self.browser.close()
+        print('browser closed')
+    """
+
+    """
+    # 手机伯乐在线所有404的url已经404的页面数
+    # 404的状态码我们自己处理 遇到404页面会进入parse 处理
+    handle_httpstatus_list = [404]
+
+    def __init__(self):
+        self.fail_urls = []
+        dispatcher.connect(self.handle_spider_closed, signals.spider_closed)
+
+    def handle_spider_closed(self, spider, reason):
+        self.crawler.stats.set_value('failed_urls', ','.join(self.fail_urls))
+    """
 
     def parse(self, response):
         """
@@ -20,10 +56,16 @@ class JobboleSpider(scrapy.Spider):
         :param response:
         :return:
         """
+        """
+        if response.status == 404:
+            self.fail_urls.append(response.url)
+            self.crawler.stats.inv_value('failed_url')  # inv_value 这样调用 failed_url就会+1 就算一开始没有也会创建
+        """
+
         # 因为还要获取封面页!所以先用xpath找到封面图片和文章url的同一个父节点 然后遍历的时候再获取对应的链接和图片 用meta发送到对应函数处理
-        post_nodes = post_node = response.xpath('//div[@class="post floated-thumb"]/div[@class="post-thumb"]/a')
+        post_nodes = response.xpath('//div[@class="post floated-thumb"]/div[@class="post-thumb"]/a')
         for post_node in post_nodes:
-            image_url = post_node.xpath('img/@src').extract_first('')
+            image_url = post_node.css("img::attr(src)").extract_first("")
             post_url = post_node.xpath('@href').extract_first('')
             # 有些网站获取的url没有带域名不是完整的!需要用urllib.parse 的一个函数join 下面这样处理可以万无一失
             #  通过meta 把封面地址传到对应的链接去

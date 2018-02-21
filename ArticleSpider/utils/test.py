@@ -1,20 +1,7 @@
-# 二分查找 递归每次找到中间值然后左大小区分
+import time
 
-def binary_search(alist, item):
-    if len(alist) == 0:
-        return False
-    else:
-        mid = len(alist) // 2
-        if alist[mid] == item:
-            return True
-        if alist[mid] > item:
-            return binary_search(alist[:mid], item)
-        else:
-            return binary_search(alist[mid + 1:], item)
-
-
-a = [2, 51, 23, 5, 546, 24, 345, 32]
-
-print(binary_search(a, 546))
-
-# 选择排序
+words = input('Please input the words you want to say!:')
+for item in words.split():
+    print('\n'.join([''.join([(item[(x - y) % len(item)] if ((x * 0.05) ** 2 + (y * 0.1) ** 2 - 1) ** 3 - (
+                x * 0.05) ** 2 * (y * 0.1) ** 3 <= 0 else ' ') for x in range(-30, 30)]) for y in range(12, -12, -1)]))
+    time.sleep(1.5);
